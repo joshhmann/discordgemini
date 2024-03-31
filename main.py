@@ -1,12 +1,23 @@
+import sys
+print(sys.path)
+
 import discord
 import requests
 import os  # To load your API key from an environment variable
 from dotenv import load_dotenv  # To load your API key from a .env file
+from interactions import SlashCommand  # Import the SlashCommand class
 
+load_dotenv()
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY') 
-DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN') # Store your keys safely
+DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')  # Store your keys safely
 BOT_PREFIX = os.getenv('BOT_PREFIX')  # Customize the bot's prefix
 client = discord.Client(intents=discord.Intents.all())  # Enable all intents
+slash = SlashCommand(client, sync_commands=True)
+
+@slash.slash(name="ask", description="Ask a question to Gemini")
+async def ask(ctx: discord.ApplicationContext, prompt: str):
+    response = call_gemini_api(prompt)
+    await ctx.send(response)
 
 @client.event
 async def on_ready():
